@@ -49,14 +49,16 @@ const WP_CHATBOT_CONFIG = {
 }
 ```
 
----
-🧑‍💻 Contributing
-If you'd like to contribute new features, fix bugs, or submit improvements, feel free to open an issue or pull request.
 
-
----
 📜 License
-This project is open-sourced under the MIT License.
+
+-This project is open-source under the MIT License.
+
+🤝 Contributions
+
+- Feel free to open issues, suggest features, or submit pull requests. Let’s build smarter web experiences together!
+
+
 
   ...
 
