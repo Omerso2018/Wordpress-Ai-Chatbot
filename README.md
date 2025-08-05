@@ -1,4 +1,4 @@
-#🧠 WordPress AI Chatbot (OpenRouter-Powered)
+# 🧠 WordPress AI Chatbot (OpenRouter-Powered)
 
 A modern, fully customizable AI chatbot widget for WordPress, built as a single HTML file. This chatbot supports LLMs via [OpenRouter.ai](https://openrouter.ai), and is designed to be easy to use, embed, and configure within any WordPress site using the Code Snippets plugin or theme editor.
 
@@ -13,7 +13,7 @@ A modern, fully customizable AI chatbot widget for WordPress, built as a single 
 ---
 
 
-✨ Features
+# ✨ Features
 
 - 🧠 Powered by any OpenRouter-compatible LLM
 - 🪄 Built-in system prompt customization
@@ -52,13 +52,13 @@ const WP_CHATBOT_CONFIG = {
 
 --------------------------------------------------------------
 
-📜 License
+# 📜 License
 
 - This project is open-source under the MIT License.
 
 --------------------------------------------------------------
 
-🤝 Contributions
+# 🤝 Contributions
 
 - Feel free to open issues, suggest features, or submit pull requests. Let’s build smarter web experiences together!
 
