@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WordPress AI Chatbot Widget</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    <!-- Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+    <style>
+        /* ==========================================
+           🎯🎯🎯 WORDPRESS SAFE CHATBOT WIDGET 🎯🎯🎯
+           ========================================== */
+        
+        /* 🔒 WORDPRESS ISOLATION - Prevent conflicts with site CSS */
+        .wp-chatbot-widget * {
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        /* 🎨 CHATBOT ICON SIZE CUSTOMIZATION */
+        .wp-chatbot-widget {
+            --chatbot-icon-size: 52px; /* 🎯 MAIN ICON SIZE */
+            --chatbot-icon-padding: 8px; /* 🎯 ICON PADDING */
+            --chatbot-icon-mobile-size: 48px; /* 🎯 MOBILE ICON SIZE */
+            --chatbot-icon-mobile-padding: 6px; /* 🎯 MOBILE ICON PADDING */
+        }
+        
+        /* 🎨 CHATBOT THEME COLORS - iOS SYSTEM BLUE */
+        .wp-chatbot-widget {
+            /* 🎯 Primary Brand Colors - iOS System Blue */
+            --chatbot-primary: linear-gradient(135deg, #007AFF 0%, #0056CC 100%);
+            --chatbot-primary-solid: #007AFF;
+            --chatbot-secondary: #0056CC;
+            --chatbot-accent: #5AC8FA;
+            
+            /* 🎯 Status Colors */
+            --chatbot-success: #34C759;
+            --chatbot-error: #FF3B30;
+            --chatbot-warning: #FF9500;
+            
+            /* 🎯 Background Colors */
+            --chatbot-bg-primary: #ffffff;
+            --chatbot-bg-secondary: #f8fafc;
+            --chatbot-bg-tertiary: #f1f5f9;
+            --chatbot-bg-dark: #1e293b;
+            
+            /* 🎯 Text Colors */
+            --chatbot-text-primary: #1e293b;
+            --chatbot-text-secondary: #64748b;
+            --chatbot-text-light: #94a3b8;
+            --chatbot-text-white: #ffffff;
+            
+            /* 🎯 Interactive Elements */
+            --chatbot-hover-color: #0056CC;
+            --chatbot-border-color: #e2e8f0;
+            --chatbot-border-focus: #007AFF;
+            
+            /* 🎨 Layout Variables - FIXED FOR RESPONSIVENESS */
+            --chatbot-width: 380px;
+            --chatbot-border-radius: 16px;
+            --chatbot-shadow: 0 20px 40px rgba(0, 122, 255, 0.15);
+            --chatbot-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            /* 📍 Positioning */
+            --chatbot-position-bottom: 2rem;
+            --chatbot-position-right: 2rem;
+            --chatbot-position-top: 2rem;
+            --chatbot-icon-position-bottom: 2rem;
+            --chatbot-icon-position-right: 2rem;
+        }
+        
+        /* ==========================================
+           🤖 MAIN CHATBOT CONTAINER - WORDPRESS SAFE
+           ========================================== */
+        .wp-chatbot-widget {
+            font-family: var(--chatbot-font-family) !important;
+            position: fixed !important;
+            bottom: var(--chatbot-position-bottom) !important;
+            right: var(--chatbot-position-right) !important;
+            z-index: 999999 !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            width: auto !important;
+            height: auto !important;
+        }
+        
+        /* ==========================================
+           🎯🎯🎯 CHATBOT ICON - FIXED Z-INDEX ISSUE 🎯🎯🎯
+           ========================================== */
+        .wp-chatbot-widget .chatbot-icon {
+            position: fixed !important;
+            right: var(--chatbot-icon-position-right) !important;
+            bottom: var(--chatbot-icon-position-bottom) !important;
+            z-index: 999997 !important;
+            cursor: pointer !important;
+            transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+            border-radius: 50% !important;
+            background: var(--chatbot-primary) !important;
+            padding: var(--chatbot-icon-padding) !important;
+            box-shadow: var(--chatbot-shadow) !important;
+            
+            /* 🎯 ICON SIZE CONTAINER */
+            width: calc(var(--chatbot-icon-size) + (var(--chatbot-icon-padding) * 2)) !important;
+            height: calc(var(--chatbot-icon-size) + (var(--chatbot-icon-padding) * 2)) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .wp-chatbot-widget.chat-open .chatbot-icon {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: scale(0.8) !important;
+        }
+        
+        .wp-chatbot-widget .chatbot-icon:hover {
+            transform: scale(1.1) rotate(5deg) !important;
+            box-shadow: 0 25px 50px rgba(0, 122, 255, 0.3) !important;
+        }
+        
+        /* 🎯 LOTTIE PLAYER SIZE CONTROL */
+        .wp-chatbot-widget .chatbot-icon dotlottie-player {
+            width: var(--chatbot-icon-size) !important;
+            height: var(--chatbot-icon-size) !important;
+        }
+        
+        /* Alternative: Simple Icon Style */
+        .wp-chatbot-widget .chat-icon-simple {
+            display: none !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: var(--chatbot-icon-size) !important;
+            height: var(--chatbot-icon-size) !important;
+            color: var(--chatbot-text-white) !important;
+            font-size: calc(var(--chatbot-icon-size) * 0.5) !important;
+        }
+        
+        /* ==========================================
+           💬 CHAT WINDOW - FIXED HEIGHT RESPONSIVENESS
+           ========================================== */
+        .wp-chatbot-widget .chat-window {
+            position: fixed !important;
+            bottom: var(--chatbot-position-bottom) !important;
+            right: var(--chatbot-position-right) !important;
+            width: var(--chatbot-width) !important;
+            /* 🎯 FIXED: Responsive height calculation */
+            height: min(700px, calc(100vh - var(--chatbot-position-top) - var(--chatbot-position-bottom))) !important;
+            background: var(--chatbot-bg-primary) !important;
+            border-radius: var(--chatbot-border-radius) !important;
+            box-shadow: var(--chatbot-shadow) !important;
+            border: 1px solid var(--chatbot-border-color) !important;
+            opacity: 0 !important;
+            transform: translateY(100%) scale(0.8) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            overflow: hidden !important;
+            backdrop-filter: blur(10px) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            z-index: 999998 !important;
+        }
+        
+        .wp-chatbot-widget .chat-window.show {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+        }
+        
+        /* ==========================================
+           📋 CHAT HEADER
+           ========================================== */
+        .wp-chatbot-widget .chat-header {
+            background: var(--chatbot-primary) !important;
+            color: var(--chatbot-text-white) !important;
+            padding: 1.5rem 1.25rem !important;
+            border-radius: var(--chatbot-border-radius) var(--chatbot-border-radius) 0 0 !important;
+            position: relative !important;
+            overflow: hidden !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .wp-chatbot-widget .chat-header::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%) !important;
+            pointer-events: none !important;
+        }
+        
+        .wp-chatbot-widget .chat-header-content {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+        
+        .wp-chatbot-widget .chat-title {
+            font-size: 1.25rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 0.25rem !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+            line-height: 1.2 !important;
+        }
+        
+        .wp-chatbot-widget .chat-status {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            font-size: 0.875rem !important;
+            opacity: 0.9 !important;
+            line-height: 1 !important;
+        }
+        
+        .wp-chatbot-widget .chat-status-dot {
+            width: 8px !important;
+            height: 8px !important;
+            border-radius: 50% !important;
+            background: var(--chatbot-error) !important;
+            animation: wp-chatbot-pulse 2s infinite !important;
+        }
+        
+        .wp-chatbot-widget .chat-status-dot.online {
+            background: var(--chatbot-success) !important;
+        }
+        
+        .wp-chatbot-widget .chat-status-dot.connecting {
+            background: var(--chatbot-warning) !important;
+        }
+        
+        @keyframes wp-chatbot-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        
+        .wp-chatbot-widget .chat-controls {
+            display: flex !important;
+            gap: 0.75rem !important;
+            align-items: center !important;
+        }
+        
+        /* Modern Plus Button Design */
+        .wp-chatbot-widget .chat-new-btn {
+            background: rgba(255,255,255,0.15) !important;
+            border: 2px solid rgba(255,255,255,0.2) !important;
+            color: var(--chatbot-text-white) !important;
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            backdrop-filter: blur(10px) !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        
+        .wp-chatbot-widget .chat-new-btn::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: rgba(255,255,255,0.2) !important;
+            border-radius: 50% !important;
+            transition: all 0.3s ease !important;
+            transform: translate(-50%, -50%) !important;
+        }
+        
+        .wp-chatbot-widget .chat-new-btn:hover::before {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .wp-chatbot-widget .chat-new-btn:hover {
+            background: rgba(255,255,255,0.25) !important;
+            border-color: rgba(255,255,255,0.4) !important;
+            transform: translateY(-2px) rotate(90deg) !important;
+        }
+        
+        .wp-chatbot-widget .chat-new-btn i {
+            font-size: 18px !important;
+            position: relative !important;
+            z-index: 1 !important;
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+        }
+        
+        .wp-chatbot-widget .chat-control-btn {
+            background: rgba(255,255,255,0.15) !important;
+            border: 2px solid rgba(255,255,255,0.2) !important;
+            color: var(--chatbot-text-white) !important;
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            backdrop-filter: blur(10px) !important;
+        }
+        
+        .wp-chatbot-widget .chat-control-btn:hover {
+            background: rgba(255,255,255,0.25) !important;
+            border-color: rgba(255,255,255,0.4) !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        .wp-chatbot-widget .chat-control-btn i {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 16px !important;
+        }
+        
+        /* ==========================================
+           💬 MESSAGES AREA
+           ========================================== */
+        .wp-chatbot-widget .chat-messages {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding: 1.5rem 1.25rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 1rem !important;
+            background: var(--chatbot-bg-secondary) !important;
+            position: relative !important;
+            /* 🎯 FIXED: Ensure messages area takes available space */
+            min-height: 0 !important;
+        }
+        
+        /* Custom Scrollbar */
+        .wp-chatbot-widget .chat-messages::-webkit-scrollbar {
+            width: 4px !important;
+        }
+        
+        .wp-chatbot-widget .chat-messages::-webkit-scrollbar-track {
+            background: var(--chatbot-bg-tertiary) !important;
+            border-radius: 2px !important;
+        }
+        
+        .wp-chatbot-widget .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--chatbot-text-light) !important;
+            border-radius: 2px !important;
+        }
+        
+        .wp-chatbot-widget .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: var(--chatbot-text-secondary) !important;
+        }
+        
+        /* ==========================================
+           🤖 MESSAGE BUBBLES & AVATARS
+           ========================================== */
+        .wp-chatbot-widget .message-ai,
+        .wp-chatbot-widget .message-user {
+            display: flex !important;
+            gap: 0.75rem !important;
+            max-width: 85% !important;
+            animation: wp-chatbot-slideIn 0.3s ease !important;
+        }
+        
+        @keyframes wp-chatbot-slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .wp-chatbot-widget .message-ai {
+            align-self: flex-start !important;
+        }
+        
+        .wp-chatbot-widget .message-user {
+            align-self: flex-end !important;
+            flex-direction: row-reverse !important;
+        }
+        
+        /* AI AVATAR */
+        .wp-chatbot-widget .bot-avatar {
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 50% !important;
+            background: var(--chatbot-primary) !important;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3) !important;
+            flex-shrink: 0 !important;
+            border: 3px solid var(--chatbot-text-white) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: var(--chatbot-text-white) !important;
+            font-size: 20px !important;
+            font-weight: bold !important;
+        }
+        
+        .wp-chatbot-widget .bot-avatar i {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+        }
+        
+        /* USER AVATAR */
+        .wp-chatbot-widget .user-avatar {
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+            flex-shrink: 0 !important;
+            border: 3px solid var(--chatbot-text-white) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: var(--chatbot-text-white) !important;
+            font-size: 18px !important;
+            font-weight: bold !important;
+        }
+        
+        .wp-chatbot-widget .user-avatar i {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+        }
+        
+        /* Message Bubbles */
+        .wp-chatbot-widget .message-ai .message-text {
+            background: var(--chatbot-text-white) !important;
+            color: var(--chatbot-text-primary) !important;
+            padding: 0.875rem 1rem !important;
+            border-radius: 18px 18px 18px 4px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+            position: relative !important;
+            line-height: 1.5 !important;
+            border: 1px solid var(--chatbot-border-color) !important;
+            margin: 0 !important;
+        }
+        
+        .wp-chatbot-widget .message-user .message-text {
+            background: var(--chatbot-primary) !important;
+            color: var(--chatbot-text-white) !important;
+            padding: 0.875rem 1rem !important;
+            border-radius: 18px 18px 4px 18px !important;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3) !important;
+            line-height: 1.5 !important;
+            margin: 0 !important;
+            word-wrap: break-word !important;
+            white-space: pre-wrap !important;
+        }
+        
+        /* Markdown Styling in AI Messages */
+        .wp-chatbot-widget .message-ai .message-text h1,
+        .wp-chatbot-widget .message-ai .message-text h2,
+        .wp-chatbot-widget .message-ai .message-text h3,
+        .wp-chatbot-widget .message-ai .message-text h4,
+        .wp-chatbot-widget .message-ai .message-text h5,
+        .wp-chatbot-widget .message-ai .message-text h6 {
+            color: var(--chatbot-text-primary) !important;
+            margin: 0.5rem 0 0.25rem 0 !important;
+            font-weight: 600 !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text p {
+            margin: 0.5rem 0 !important;
+            line-height: 1.5 !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text code {
+            background: var(--chatbot-bg-tertiary) !important;
+            padding: 0.125rem 0.25rem !important;
+            border-radius: 4px !important;
+            font-family: 'Courier New', monospace !important;
+            font-size: 0.875rem !important;
+            color: var(--chatbot-primary-solid) !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text pre {
+            background: var(--chatbot-bg-tertiary) !important;
+            padding: 0.75rem !important;
+            border-radius: 8px !important;
+            overflow-x: auto !important;
+            margin: 0.5rem 0 !important;
+            border-left: 3px solid var(--chatbot-primary-solid) !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text pre code {
+            background: none !important;
+            padding: 0 !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text ul,
+        .wp-chatbot-widget .message-ai .message-text ol {
+            margin: 0.5rem 0 !important;
+            padding-left: 1.5rem !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text li {
+            margin: 0.25rem 0 !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text blockquote {
+            border-left: 3px solid var(--chatbot-primary-solid) !important;
+            margin: 0.5rem 0 !important;
+            padding-left: 1rem !important;
+            font-style: italic !important;
+            color: var(--chatbot-text-secondary) !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text a {
+            color: var(--chatbot-primary-solid) !important;
+            text-decoration: none !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text a:hover {
+            text-decoration: underline !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text strong {
+            font-weight: 600 !important;
+        }
+        
+        .wp-chatbot-widget .message-ai .message-text em {
+            font-style: italic !important;
+        }
+        
+        /* File Upload Preview */
+        .wp-chatbot-widget .file-preview {
+            background: var(--chatbot-bg-tertiary) !important;
+            border: 2px dashed var(--chatbot-primary-solid) !important;
+            border-radius: 8px !important;
+            padding: 0.75rem !important;
+            margin: 0.5rem 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+        
+        .wp-chatbot-widget .file-preview img {
+            max-width: 100px !important;
+            max-height: 100px !important;
+            border-radius: 4px !important;
+            object-fit: cover !important;
+        }
+        
+        .wp-chatbot-widget .file-preview .file-info {
+            flex: 1 !important;
+        }
+        
+        .wp-chatbot-widget .file-preview .file-name {
+            font-weight: 600 !important;
+            color: var(--chatbot-text-primary) !important;
+            margin-bottom: 0.25rem !important;
+        }
+        
+        .wp-chatbot-widget .file-preview .file-size {
+            font-size: 0.875rem !important;
+            color: var(--chatbot-text-secondary) !important;
+        }
+        
+        .wp-chatbot-widget .file-preview .file-remove {
+            background: var(--chatbot-error) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 24px !important;
+            height: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            font-size: 0.75rem !important;
+        }
+        
+        /* Copy Button */
+        .wp-chatbot-widget .copy-btn {
+            position: absolute !important;
+            top: 0.5rem !important;
+            right: 0.5rem !important;
+            background: var(--chatbot-bg-tertiary) !important;
+            border: none !important;
+            border-radius: 6px !important;
+            padding: 0.25rem !important;
+            cursor: pointer !important;
+            opacity: 0 !important;
+            transition: all 0.2s ease !important;
+            font-size: 0.75rem !important;
+            color: var(--chatbot-text-secondary) !important;
+        }
+        
+        .wp-chatbot-widget .copy-btn i {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 400 !important;
+        }
+        
+        .wp-chatbot-widget .message-ai:hover .copy-btn {
+            opacity: 1 !important;
+        }
+        
+        .wp-chatbot-widget .copy-btn:hover {
+            background: var(--chatbot-hover-color) !important;
+            color: var(--chatbot-text-white) !important;
+        }
+        
+        /* ==========================================
+           💬 INPUT AREA - ENHANCED WITH FILE UPLOAD
+           ========================================== */
+        .wp-chatbot-widget .chat-input-area {
+            padding: 1.25rem !important;
+            background: var(--chatbot-text-white) !important;
+            border-radius: 0 0 var(--chatbot-border-radius) var(--chatbot-border-radius) !important;
+            border-top: 1px solid var(--chatbot-border-color) !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .wp-chatbot-widget .chat-input-form {
+            display: flex !important;
+            gap: 0.75rem !important;
+            align-items: flex-end !important;
+            background: var(--chatbot-bg-secondary) !important;
+            border-radius: 24px !important;
+            padding: 0.5rem !important;
+            border: 2px solid transparent !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .wp-chatbot-widget .chat-input-form:focus-within {
+            border-color: var(--chatbot-border-focus) !important;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1) !important;
+        }
+        
+        /* File Upload Button */
+        .wp-chatbot-widget .file-upload-btn {
+            background: transparent !important;
+            border: none !important;
+            color: var(--chatbot-text-light) !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            flex-shrink: 0 !important;
+            opacity: 0.7 !important;
+        }
+        
+        .wp-chatbot-widget .file-upload-btn:hover {
+            background: rgba(0, 122, 255, 0.1) !important;
+            color: var(--chatbot-primary-solid) !important;
+            opacity: 1 !important;
+            transform: scale(1.1) !important;
+        }
+        
+        .wp-chatbot-widget .file-upload-btn i {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 16px !important;
+        }
+        
+        .wp-chatbot-widget .file-upload-input {
+            display: none !important;
+        }
+        
+        .wp-chatbot-widget .chat-input {
+            flex: 1 !important;
+            border: none !important;
+            background: none !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 1rem !important;
+            color: var(--chatbot-text-primary) !important;
+            resize: none !important;
+            font-family: inherit !important;
+            max-height: 100px !important;
+            min-height: 20px !important;
+            overflow-y: auto !important;
+            outline: none !important;
+            line-height: 1.4 !important;
+        }
+        
+        .wp-chatbot-widget .chat-input::placeholder {
+            color: var(--chatbot-text-light) !important;
+        }
+        
+        .wp-chatbot-widget .chat-send-btn {
+            background: var(--chatbot-primary) !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 44px !important;
+            height: 44px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            color: var(--chatbot-text-white) !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .wp-chatbot-widget .chat-send-btn i {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 16px !important;
+        }
+        
+        .wp-chatbot-widget .chat-send-btn:hover:not(:disabled) {
+            transform: scale(1.05) !important;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4) !important;
+        }
+        
+        .wp-chatbot-widget .chat-send-btn:disabled {
+            opacity: 0.5 !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            background: var(--chatbot-text-light) !important;
+        }
+        
+        /* ==========================================
+           🎪 STARTUP BUTTONS
+           ========================================== */
+        .wp-chatbot-widget .startup-buttons {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 0.5rem !important;
+            margin-top: 1rem !important;
+        }
+        
+        .wp-chatbot-widget .startup-btn {
+            background: var(--chatbot-text-white) !important;
+            border: 2px solid var(--chatbot-border-color) !important;
+            padding: 0.5rem 0.875rem !important;
+            border-radius: 20px !important;
+            cursor: pointer !important;
+            font-size: 0.875rem !important;
+            transition: all 0.2s ease !important;
+            color: var(--chatbot-text-primary) !important;
+            margin: 0 !important;
+            line-height: 1.2 !important;
+        }
+        
+        .wp-chatbot-widget .startup-btn:hover {
+            background: var(--chatbot-primary) !important;
+            border-color: var(--chatbot-primary-solid) !important;
+            color: var(--chatbot-text-white) !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        /* ==========================================
+           ⏳ LOADING ANIMATION
+           ========================================== */
+        .wp-chatbot-widget .loading-screen {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            display: none !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 1rem !important;
+            backdrop-filter: blur(10px) !important;
+            z-index: 10 !important;
+        }
+        
+        .wp-chatbot-widget .loading-screen i {
+            font-size: 2rem !important;
+            color: var(--chatbot-primary-solid) !important;
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+        }
+        
+        .wp-chatbot-widget .loading-screen p {
+            color: var(--chatbot-text-secondary) !important;
+            font-weight: 500 !important;
+            margin: 0 !important;
+        }
+        
+        /* ==========================================
+           💭 TYPING ANIMATION
+           ========================================== */
+        .wp-chatbot-widget .typing-animation {
+            display: flex !important;
+            gap: 0.75rem !important;
+            align-items: flex-end !important;
+        }
+        
+        .wp-chatbot-widget .typing-dots {
+            background: var(--chatbot-text-white) !important;
+            padding: 1rem !important;
+            border-radius: 18px 18px 18px 4px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+            border: 1px solid var(--chatbot-border-color) !important;
+        }
+        
+        .wp-chatbot-widget .typing-dot {
+            animation: 1.4s wp-chatbot-typing infinite ease-in-out !important;
+            fill: var(--chatbot-text-light) !important;
+        }
+        
+        .wp-chatbot-widget .typing-dot:nth-child(2) {
+            animation-delay: 0.2s !important;
+        }
+        
+        .wp-chatbot-widget .typing-dot:nth-child(3) {
+            animation-delay: 0.4s !important;
+        }
+        
+        @keyframes wp-chatbot-typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
+        /* ==========================================
+           🔔 POPUP NOTIFICATIONS - HIDDEN
+           ========================================== */
+        .wp-chatbot-widget .notification-popup {
+            position: absolute !important;
+            top: 1rem !important;
+            left: 1rem !important;
+            right: 1rem !important;
+            background: var(--chatbot-text-white) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+            padding: 1rem !important;
+            border-left: 4px solid var(--chatbot-error) !important;
+            z-index: 10 !important;
+            opacity: 0 !important;
+            transform: translateY(-100%) !important;
+            transition: all 0.3s ease !important;
+            display: none !important; /* 🎯 HIDDEN - No more notifications */
+        }
+        
+        .wp-chatbot-widget .notification-popup.show {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+            display: none !important; /* 🎯 HIDDEN - No more notifications */
+        }
+        
+        .wp-chatbot-widget .notification-popup p {
+            margin: 0 !important;
+            font-weight: 500 !important;
+            color: var(--chatbot-text-primary) !important;
+        }
+        
+        /* ==========================================
+           📱 RESPONSIVE DESIGN - MOBILE OPTIMIZED
+           ========================================== */
+        @media (max-width: 768px) {
+            .wp-chatbot-widget {
+                --chatbot-position-bottom: 1rem !important;
+                --chatbot-position-right: 1rem !important;
+                --chatbot-icon-position-bottom: 1.5rem !important;
+                --chatbot-icon-position-right: 1.5rem !important;
+            }
+
+            .wp-chatbot-widget .chat-window {
+                width: calc(100vw - 2rem) !important;
+                max-width: 400px !important;
+                bottom: 1rem !important;
+                right: 1rem !important;
+                /* 🎯 FIXED: Mobile height calculation */
+                height: min(450px, calc(100vh - 2rem)) !important;
+            }
+
+            .wp-chatbot-widget .chat-header {
+                padding: 1rem 1.25rem !important;
+            }
+
+            .wp-chatbot-widget .chat-title {
+                font-size: 1.125rem !important;
+            }
+
+            .wp-chatbot-widget .chat-messages {
+                padding: 1rem !important;
+            }
+
+            .wp-chatbot-widget .chat-input-area {
+                padding: 1rem !important;
+            }
+
+            .wp-chatbot-widget .chatbot-icon {
+                padding: var(--chatbot-icon-mobile-padding) !important;
+                width: calc(var(--chatbot-icon-mobile-size) + (var(--chatbot-icon-mobile-padding) * 2)) !important;
+                height: calc(var(--chatbot-icon-mobile-size) + (var(--chatbot-icon-mobile-padding) * 2)) !important;
+            }
+            
+            .wp-chatbot-widget .chatbot-icon dotlottie-player {
+                width: var(--chatbot-icon-mobile-size) !important;
+                height: var(--chatbot-icon-mobile-size) !important;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .wp-chatbot-widget .chat-window {
+                width: calc(100vw - 1rem) !important;
+                right: 0.5rem !important;
+                bottom: 0.5rem !important;
+                /* 🎯 FIXED: Extra small screen height */
+                height: min(400px, calc(100vh - 1rem)) !important;
+            }
+
+            .wp-chatbot-widget .chat-header {
+                padding: 0.875rem 1rem !important;
+            }
+
+            .wp-chatbot-widget .chat-messages {
+                padding: 0.75rem !important;
+                gap: 0.75rem !important;
+            }
+
+            .wp-chatbot-widget .chat-input-area {
+                padding: 0.875rem !important;
+            }
+
+            .wp-chatbot-widget .chatbot-icon {
+                right: 1rem !important;
+                bottom: 1rem !important;
+            }
+        }
+        
+        /* ==========================================
+           🌐 WORDPRESS THEME COMPATIBILITY
+           ========================================== */
+        .wp-chatbot-widget * {
+            font-family: var(--chatbot-font-family) !important;
+        }
+        
+        /* Ensure chatbot doesn't interfere with WordPress admin bar */
+        .admin-bar .wp-chatbot-widget {
+            top: calc(var(--chatbot-position-top) + 32px) !important;
+        }
+        
+        @media screen and (max-width: 782px) {
+            .admin-bar .wp-chatbot-widget {
+                top: calc(var(--chatbot-position-top) + 46px) !important;
+            }
+        }
+
+        /* ==========================================
+           ✨ ENHANCED FEATURES
+           ========================================== */
+        
+        /* Error message styling */
+        .wp-chatbot-widget .message-error {
+            background: rgba(255, 59, 48, 0.1) !important;
+            border: 1px solid var(--chatbot-error) !important;
+            color: var(--chatbot-error) !important;
+            padding: 0.75rem 1rem !important;
+            border-radius: 12px !important;
+            margin: 0.5rem 0 !important;
+            font-size: 0.875rem !important;
+            text-align: center !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        /* Retry button */
+        .wp-chatbot-widget .retry-btn {
+            background: var(--chatbot-error) !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            font-size: 0.875rem !important;
+            transition: all 0.2s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        .wp-chatbot-widget .retry-btn:hover {
+            background: #dc2626 !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .wp-chatbot-widget .retry-btn i {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+        }
+
+        /* Character count */
+        .wp-chatbot-widget .char-count {
+            font-size: 0.75rem !important;
+            color: var(--chatbot-text-light) !important;
+            text-align: right !important;
+            margin-top: 0.25rem !important;
+        }
+
+        .wp-chatbot-widget .char-count.warning {
+            color: var(--chatbot-warning) !important;
+        }
+
+        .wp-chatbot-widget .char-count.error {
+            color: var(--chatbot-error) !important;
+        }
+
+        /* Memory indicator */
+        .wp-chatbot-widget .memory-indicator {
+            font-size: 0.75rem !important;
+            color: var(--chatbot-text-light) !important;
+            text-align: center !important;
+            padding: 0.25rem !important;
+            opacity: 0.7 !important;
+        }
+
+        /* Connection status indicator */
+        .wp-chatbot-widget .connection-status {
+            position: absolute !important;
+            top: 1rem !important;
+            right: 1rem !important;
+            background: var(--chatbot-text-white) !important;
+            border: 1px solid var(--chatbot-border-color) !important;
+            border-radius: 20px !important;
+            padding: 0.25rem 0.75rem !important;
+            font-size: 0.75rem !important;
+            color: var(--chatbot-text-secondary) !important;
+            opacity: 0 !important;
+            transition: all 0.3s ease !important;
+            z-index: 5 !important;
+            display: none !important; /* 🎯 HIDDEN - No more connection status */
+        }
+
+        .wp-chatbot-widget .connection-status.show {
+            opacity: 1 !important;
+            display: none !important; /* 🎯 HIDDEN - No more connection status */
+        }
+
+        .wp-chatbot-widget .connection-status.error {
+            border-color: var(--chatbot-error) !important;
+            color: var(--chatbot-error) !important;
+        }
+
+        .wp-chatbot-widget .connection-status.success {
+            border-color: var(--chatbot-success) !important;
+            color: var(--chatbot-success) !important;
+        }
+
+        /* ==========================================
+           🎯 CUSTOM HEIGHT RESPONSIVE CLASSES
+           ========================================== */
+        /* For larger screens with specific height */
+        @media (min-width: 769px) and (min-height: 700px) {
+            .wp-chatbot-widget .chat-window {
+                height: 700px !important;
+            }
+        }
+
+        @media (min-width: 769px) and (min-height: 800px) {
+            .wp-chatbot-widget .chat-window {
+                height: min(750px, calc(100vh - 4rem)) !important;
+            }
+        }
+
+        @media (min-width: 769px) and (min-height: 900px) {
+            .wp-chatbot-widget .chat-window {
+                height: min(800px, calc(100vh - 4rem)) !important;
+            }
+        }
+
+        /* For mobile with specific height */
+        @media (max-width: 768px) and (min-height: 450px) {
+            .wp-chatbot-widget .chat-window {
+                height: 450px !important;
+            }
+        }
+
+        @media (max-width: 768px) and (min-height: 600px) {
+            .wp-chatbot-widget .chat-window {
+                height: min(500px, calc(100vh - 2rem)) !important;
+            }
+        }
+
+        @media (max-width: 768px) and (min-height: 700px) {
+            .wp-chatbot-widget .chat-window {
+                height: min(550px, calc(100vh - 2rem)) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wp-chatbot-widget" id="wp-chatbot-widget">
+        <!-- 🎯🎯🎯 CHAT ICON - HIGHLIGHTED FOR EASY CUSTOMIZATION 🎯🎯🎯 -->
+        <div class="chatbot-icon" onclick="wpChatbotToggle()" role="button" tabindex="0" 
+             aria-label="Open AI Chatbot" onkeypress="wpChatbotHandleKeyPress(event)">
+            <!-- 🔄 METHOD 1: Lottie Animation (Current) -->
+            <dotlottie-player
+                src="https://lottie.host/feefeb87-8206-4b50-8696-bda4747b4fdf/uUJIo0ICb6.json"
+                background="transparent"
+                speed="1"
+                loop
+                autoplay>
+            </dotlottie-player>
+            
+            <!-- 🔄 METHOD 2: Simple Icon (Alternative - uncomment to use) -->
+            <!--
+            <div class="chat-icon-simple">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            -->
+            
+            <!-- 🔄 METHOD 3: Custom Image (Alternative - uncomment to use) -->
+            <!--
+            <img src="YOUR_CHAT_ICON_URL_HERE" alt="Chat" style="width: var(--chatbot-icon-size); height: var(--chatbot-icon-size); border-radius: 50%;">
+            -->
+        </div>
+        
+        <div class="chat-window" id="chat-window" role="dialog" aria-labelledby="chat-title" aria-modal="true">
+            <!-- Loading State -->
+            <div class="loading-screen" id="loading-screen" role="status" aria-live="polite">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <p>Initializing AI...</p>
+            </div>
+            
+            <!-- Connection Status - HIDDEN -->
+            <div class="connection-status" id="connection-status">
+                <span id="connection-text">Connecting...</span>
+            </div>
+            
+            <!-- Popup Notifications - HIDDEN -->
+            <div class="notification-popup" id="notification-popup" role="alert" aria-live="assertive">
+                <p>Notification message</p>
+            </div>
+            
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="chat-header-content">
+                    <div>
+                        <div class="chat-title" id="chat-title">AI Assistant</div>
+                        <div class="chat-status">
+                            <span class="chat-status-dot" id="status-dot"></span>
+                            <span id="chat-status">Connecting...</span>
+                        </div>
+                    </div>
+                    <div class="chat-controls">
+                        <!-- Modern Plus Button -->
+                        <button class="chat-new-btn" title="New Chat" onclick="wpChatbotNewChat()"
+                                aria-label="Start new conversation">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                        <button class="chat-control-btn" onclick="wpChatbotToggle()" title="Close Chat"
+                                aria-label="Close chatbot">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Messages Area -->
+            <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
+                <!-- Messages will be dynamically added here -->
+            </div>
+            
+            <!-- Input Area -->
+            <div class="chat-input-area">
+                <form class="chat-input-form" id="chat-form" onsubmit="wpChatbotSendMessage(event)">
+                    <!-- File Upload Button -->
+                    <button type="button" class="file-upload-btn" onclick="wpChatbotTriggerFileUpload()" 
+                            title="Attach file or image" aria-label="Upload file or image">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </button>
+                    <input type="file" class="file-upload-input" id="file-upload" 
+                           accept="image/*,.pdf,.doc,.docx,.txt" onchange="wpChatbotHandleFileUpload(event)">
+                    
+                    <textarea
+                        class="chat-input"
+                        id="chat-input"
+                        name="message"
+                        placeholder="Type your message..."
+                        autocomplete="off"
+                        required
+                        rows="1"
+                        maxlength="2000"
+                        aria-label="Type your message"
+                    ></textarea>
+                    <button type="submit" class="chat-send-btn" id="send-btn" aria-label="Send message">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+                <!-- File Preview Area -->
+                <div class="file-preview-area" id="file-preview-area"></div>
+                <div class="char-count" id="char-count">0/2000</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🎯🎯🎯 WORDPRESS SAFE CHATBOT CONFIGURATION 🎯🎯🎯
+        // ==========================================
+        
+        const WP_CHATBOT_CONFIG = {
+            // 🤖 AI Configuration
+            OPENROUTER_API_KEY: "YOUR_OPENROUTER__KEY_HERE", // 🔑 Replace with your OpenRouter API key
+            OPENROUTER_BASE_URL: "https://openrouter.ai/api/v1",
+            MODEL_NAME: "google/gemma-3-27b-it:free", // 🤖 Choose your preferred model
+            
+            // 🧠 Memory Configuration
+            MEMORY_SIZE: 20, // Number of messages to remember
+            CONTEXT_WINDOW_SIZE: 10, // Messages sent as context to AI
+            
+            // 🤖 Bot Identity
+            BOT_NAME: "AI Assistant",
+            BOT_AVATAR_ICON: "fa-solid fa-robot",
+            SYSTEM_PROMPT: `You are a helpful AI assistant. Be conversational, friendly, and concise in your responses. 
+                           Remember the conversation context and refer to previous messages when relevant.
+                           If asked about your capabilities, mention that you can help with various tasks including:
+                           - Answering questions
+                           - Writing and editing
+                           - Analysis and problem-solving
+                           - Creative tasks
+                           - General conversation
+                           You can also process images and files that users share with you.`,
+            
+            // 👤 User Settings  
+            USER_AVATAR_ICON: "fa-solid fa-user",
+            
+            // 💬 Welcome Message
+            WELCOME_MESSAGE: "Hello! I'm your AI assistant powered by advanced language models. How can I help you today? 🤖",
+            
+            // 🎪 Startup Buttons
+            STARTUP_BUTTONS: [
+                { text: "What can you do?", prompt: "What are your capabilities and how can you help me?" },
+                { text: "Help with writing", prompt: "I need help with writing something" },
+                { text: "Answer questions", prompt: "I have some questions to ask" },
+                { text: "Creative tasks", prompt: "I need help with a creative project" }
+            ],
+            
+            // ⚙️ Behavior Settings
+            TYPING_SPEED: 30,
+            ANIMATION_DURATION: 300,
+            INITIALIZATION_DELAY: 1200,
+            MAX_MESSAGE_LENGTH: 2000,
+            MAX_MESSAGES: 100,
+            
+            // 📁 File Upload Settings
+            MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+            ALLOWED_FILE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            
+            // 🔌 API Settings
+            API_TIMEOUT: 60000, // 60 seconds
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 2000, // 2 seconds
+            
+            // 🎨 UI Settings
+            AUTO_RESIZE_INPUT: true,
+            SHOW_TIMESTAMPS: false,
+            SHOW_CHAR_COUNT: true,
+            SHOW_MEMORY_INDICATOR: true,
+            ENABLE_MARKDOWN: true,
+        };
+
+        // ==========================================
+        // 📊 GLOBAL VARIABLES & STATE MANAGEMENT
+        // ==========================================
+        let wpChatbotIsOpen = false;
+        let wpChatbotMessages = [];
+        let wpChatbotConversationMemory = [];
+        let wpChatbotIsInitialized = false;
+        let wpChatbotIsTyping = false;
+        let wpChatbotSessionId = wpChatbotGenerateSessionId();
+        let wpChatbotApiCallCount = 0;
+        let wpChatbotLastMessageTime = 0;
+        let wpChatbotRetryCount = 0;
+        let wpChatbotAbortController = null;
+        let wpChatbotUploadedFiles = [];
+
+        // ==========================================
+        // 🛠️ UTILITY FUNCTIONS
+        // ==========================================
+
+        function wpChatbotGenerateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function wpChatbotSanitizeInput(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
+        }
+
+        function wpChatbotHandleKeyPress(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                wpChatbotToggle();
+            }
+        }
+
+        function wpChatbotAutoResizeTextarea(textarea) {
+            if (!WP_CHATBOT_CONFIG.AUTO_RESIZE_INPUT) return;
+            
+            textarea.style.height = 'auto';
+            const newHeight = Math.min(textarea.scrollHeight, 100);
+            textarea.style.height = newHeight + 'px';
+        }
+
+        function wpChatbotUpdateCharCount() {
+            if (!WP_CHATBOT_CONFIG.SHOW_CHAR_COUNT) return;
+            
+            const input = document.getElementById('chat-input');
+            const charCount = document.getElementById('char-count');
+            
+            if (!input || !charCount) return;
+            
+            const current = input.value.length;
+            const max = WP_CHATBOT_CONFIG.MAX_MESSAGE_LENGTH;
+            
+            charCount.textContent = `${current}/${max}`;
+            
+            // Update styling based on character count
+            charCount.className = 'char-count';
+            if (current > max * 0.9) {
+                charCount.classList.add('warning');
+            }
+            if (current >= max) {
+                charCount.classList.add('error');
+            }
+        }
+
+        function wpChatbotUpdateMemoryIndicator() {
+            if (!WP_CHATBOT_CONFIG.SHOW_MEMORY_INDICATOR) return;
+            
+            const chatMessages = document.getElementById('chat-messages');
+            let memoryIndicator = chatMessages.querySelector('.memory-indicator');
+            
+            // Remove existing indicator
+            if (memoryIndicator) {
+                memoryIndicator.remove();
+            }
+            
+            // Add new indicator if there are remembered messages
+            if (wpChatbotConversationMemory.length > 0) {
+                memoryIndicator = document.createElement('div');
+                memoryIndicator.classList.add('memory-indicator');
+                memoryIndicator.textContent = `💭 Remembering ${wpChatbotConversationMemory.length} previous messages`;
+                chatMessages.insertBefore(memoryIndicator, chatMessages.firstChild);
+            }
+        }
+
+        function wpChatbotUpdateConnectionStatus(status, message) {
+            // Function disabled - no more connection status notifications
+            return;
+        }
+
+        // ==========================================
+        // 📁 FILE HANDLING FUNCTIONS
+        // ==========================================
+
+        function wpChatbotTriggerFileUpload() {
+            const fileInput = document.getElementById('file-upload');
+            fileInput.click();
+        }
+
+        function wpChatbotHandleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file size
+            if (file.size > WP_CHATBOT_CONFIG.MAX_FILE_SIZE) {
+                wpChatbotShowError('File too large. Maximum size is 10MB.');
+                return;
+            }
+
+            // Validate file type
+            if (!WP_CHATBOT_CONFIG.ALLOWED_FILE_TYPES.includes(file.type)) {
+                wpChatbotShowError('File type not supported. Please upload images, PDFs, or text documents.');
+                return;
+            }
+
+            // Create file preview
+            wpChatbotCreateFilePreview(file);
+            
+            // Reset input
+            event.target.value = '';
+        }
+
+        function wpChatbotCreateFilePreview(file) {
+            const previewArea = document.getElementById('file-preview-area');
+            
+            // Clear existing previews
+            previewArea.innerHTML = '';
+            
+            const preview = document.createElement('div');
+            preview.classList.add('file-preview');
+            
+            let fileIcon = 'fa-solid fa-file';
+            let previewContent = '';
+            
+            if (file.type.startsWith('image/')) {
+                fileIcon = 'fa-solid fa-image';
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = preview.querySelector('img');
+                    if (img) img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                previewContent = '<img src="" alt="Preview">';
+            } else if (file.type === 'application/pdf') {
+                fileIcon = 'fa-solid fa-file-pdf';
+            } else if (file.type.includes('word')) {
+                fileIcon = 'fa-solid fa-file-word';
+            } else if (file.type === 'text/plain') {
+                fileIcon = 'fa-solid fa-file-text';
+            }
+            
+            preview.innerHTML = `
+                ${previewContent}
+                <div class="file-info">
+                    <div class="file-name">
+                        <i class="${fileIcon}"></i> ${file.name}
+                    </div>
+                    <div class="file-size">${wpChatbotFormatFileSize(file.size)}</div>
+                </div>
+                <button class="file-remove" onclick="wpChatbotRemoveFilePreview()" title="Remove file">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            `;
+            
+            previewArea.appendChild(preview);
+            
+            // Store file for sending
+            wpChatbotUploadedFiles = [file];
+        }
+
+        function wpChatbotRemoveFilePreview() {
+            const previewArea = document.getElementById('file-preview-area');
+            previewArea.innerHTML = '';
+            wpChatbotUploadedFiles = [];
+        }
+
+        function wpChatbotFormatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function wpChatbotShowError(message) {
+            // Simple alert for now - can be enhanced with custom modal
+            alert(message);
+        }
+
+        // ==========================================
+        // 📝 MARKDOWN RENDERING FUNCTIONS
+        // ==========================================
+
+        function wpChatbotRenderMarkdown(text) {
+            if (!WP_CHATBOT_CONFIG.ENABLE_MARKDOWN || typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
+                return text;
+            }
+
+            try {
+                // Configure marked options
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true
+                });
+
+                // Render markdown
+                const html = marked.parse(text);
+                
+                // Sanitize HTML
+                const clean = DOMPurify.sanitize(html, {
+                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a'],
+                    ALLOWED_ATTR: ['href', 'title', 'target'],
+                    ALLOW_DATA_ATTR: false
+                });
+
+                return clean;
+            } catch (error) {
+                console.error('Markdown rendering error:', error);
+                return text;
+            }
+        }
+
+        // ==========================================
+        // 🧠 MEMORY MANAGEMENT FUNCTIONS
+        // ==========================================
+
+        function wpChatbotAddToMemory(role, content) {
+            const memoryEntry = {
+                role: role,
+                content: content,
+                timestamp: Date.now(),
+                sessionId: wpChatbotSessionId
+            };
+            
+            wpChatbotConversationMemory.push(memoryEntry);
+            
+            // Maintain memory size limit
+            if (wpChatbotConversationMemory.length > WP_CHATBOT_CONFIG.MEMORY_SIZE) {
+                wpChatbotConversationMemory = wpChatbotConversationMemory.slice(-WP_CHATBOT_CONFIG.MEMORY_SIZE);
+            }
+            
+            wpChatbotUpdateMemoryIndicator();
+        }
+
+        function wpChatbotGetContextMessages() {
+            // Get recent messages for context (excluding system messages)
+            const contextMessages = wpChatbotConversationMemory
+                .slice(-WP_CHATBOT_CONFIG.CONTEXT_WINDOW_SIZE)
+                .map(msg => ({
+                    role: msg.role === 'bot' ? 'assistant' : msg.role,
+                    content: msg.content
+                }));
+            
+            return contextMessages;
+        }
+
+        function wpChatbotClearMemory() {
+            wpChatbotConversationMemory = [];
+            wpChatbotUpdateMemoryIndicator();
+            console.log('🧠 Conversation memory cleared');
+        }
+
+        // ==========================================
+        // 🔌 OpenRouter API INTEGRATION
+        // ==========================================
+
+        async function wpChatbotCallOpenRouterAPI(userMessage, files = []) {
+            if (!WP_CHATBOT_CONFIG.OPENROUTER_API_KEY || WP_CHATBOT_CONFIG.OPENROUTER_API_KEY === "YOUR_OPENROUTER__KEY_HERE") {
+                throw new Error('OpenRouter API key not configured. Please set your API key in the configuration.');
+            }
+
+            // Abort any existing request
+            if (wpChatbotAbortController) {
+                wpChatbotAbortController.abort();
+            }
+            
+            wpChatbotAbortController = new AbortController();
+            
+            // Prepare user message content
+            let messageContent = userMessage;
+            
+            // Handle file attachments
+            if (files.length > 0) {
+                const fileDescriptions = [];
+                for (const file of files) {
+                    if (file.type.startsWith('image/')) {
+                        try {
+                            const base64 = await wpChatbotFileToBase64(file);
+                            messageContent += `\n\n[Image attached: ${file.name}]\nData: ${base64}`;
+                            fileDescriptions.push(`Image: ${file.name} (${wpChatbotFormatFileSize(file.size)})`);
+                        } catch (error) {
+                            console.error('Error converting image to base64:', error);
+                            fileDescriptions.push(`Image: ${file.name} (failed to load)`);
+                        }
+                    } else {
+                        try {
+                            const text = await wpChatbotFileToText(file);
+                            messageContent += `\n\n[File attached: ${file.name}]\nContent:\n${text}`;
+                            fileDescriptions.push(`File: ${file.name} (${wpChatbotFormatFileSize(file.size)})`);
+                        } catch (error) {
+                            console.error('Error reading file:', error);
+                            fileDescriptions.push(`File: ${file.name} (failed to read)`);
+                        }
+                    }
+                }
+                
+                if (fileDescriptions.length > 0) {
+                    messageContent = `${userMessage}\n\nAttached files: ${fileDescriptions.join(', ')}\n\n${messageContent.substring(userMessage.length)}`;
+                }
+            }
+            
+            // Prepare messages for the API
+            const messages = [
+                {
+                    role: "system",
+                    content: WP_CHATBOT_CONFIG.SYSTEM_PROMPT
+                },
+                // Add conversation memory for context
+                ...wpChatbotGetContextMessages(),
+                {
+                    role: "user",
+                    content: messageContent
+                }
+            ];
+
+            const requestBody = {
+                model: WP_CHATBOT_CONFIG.MODEL_NAME,
+                messages: messages,
+                max_tokens: 1000,
+                temperature: 0.7,
+                top_p: 0.9,
+                frequency_penalty: 0.1,
+                presence_penalty: 0.1,
+                stream: false
+            };
+
+            console.log('🚀 Sending request to OpenRouter API:', {
+                model: WP_CHATBOT_CONFIG.MODEL_NAME,
+                messageCount: messages.length,
+                userMessage: userMessage.substring(0, 100) + (userMessage.length > 100 ? '...' : ''),
+                hasFiles: files.length > 0
+            });
+
+            try {
+                const response = await fetch(`${WP_CHATBOT_CONFIG.OPENROUTER_BASE_URL}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${WP_CHATBOT_CONFIG.OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'WordPress AI Chatbot'
+                    },
+                    body: JSON.stringify(requestBody),
+                    signal: wpChatbotAbortController.signal
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    let errorMessage = `HTTP ${response.status}`;
+                    
+                    if (errorData?.error?.message) {
+                        errorMessage = errorData.error.message;
+                    } else if (response.status === 401) {
+                        errorMessage = 'Invalid API key. Please check your OpenRouter API key.';
+                    } else if (response.status === 429) {
+                        errorMessage = 'Rate limit exceeded. Please try again in a moment.';
+                    } else if (response.status === 402) {
+                        errorMessage = 'Insufficient credits. Please check your OpenRouter account.';
+                    }
+                    
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('Invalid response format from API');
+                }
+
+                const aiResponse = data.choices[0].message.content;
+                
+                // Log successful API call
+                wpChatbotApiCallCount++;
+                console.log('✅ OpenRouter API call successful:', {
+                    callCount: wpChatbotApiCallCount,
+                    model: data.model || WP_CHATBOT_CONFIG.MODEL_NAME,
+                    usage: data.usage,
+                    responseLength: aiResponse.length
+                });
+                
+                return aiResponse;
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    throw new Error('Request was cancelled');
+                }
+                
+                console.error('❌ OpenRouter API Error:', error);
+                throw error;
+            }
+        }
+
+        async function wpChatbotFileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function wpChatbotFileToText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
+        }
+
+        // ==========================================
+        // 🎛️ CORE FUNCTIONS
+        // ==========================================
+
+        function wpChatbotToggle() {
+            const chatWindow = document.getElementById('chat-window');
+            const widget = document.getElementById('wp-chatbot-widget');
+            
+            wpChatbotIsOpen = !wpChatbotIsOpen;
+            
+            if (wpChatbotIsOpen) {
+                chatWindow.classList.add('show');
+                widget.classList.add('chat-open');
+                widget.style.zIndex = '999999';
+                
+                // Initialize if not already done
+                if (!wpChatbotIsInitialized) {
+                    wpChatbotInitialize();
+                }
+                
+                // Focus on input after animation
+                setTimeout(() => {
+                    const input = document.getElementById('chat-input');
+                    if (input) {
+                        input.focus();
+                        wpChatbotScrollToBottom();
+                    }
+                }, 400);
+            } else {
+                chatWindow.classList.remove('show');
+                widget.classList.remove('chat-open');
+                // Reset z-index after animation
+                setTimeout(() => {
+                    widget.style.zIndex = '999998';
+                }, 400);
+            }
+        }
+
+        function wpChatbotNewChat() {
+            // Clear conversation
+            wpChatbotMessages = [];
+            wpChatbotClearMemory();
+            wpChatbotSessionId = wpChatbotGenerateSessionId();
+            wpChatbotRetryCount = 0;
+            wpChatbotUploadedFiles = [];
+            
+            // Clear messages
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+            
+            // Clear file previews
+            wpChatbotRemoveFilePreview();
+            
+            // Add welcome message
+            wpChatbotAddMessage('ai', WP_CHATBOT_CONFIG.WELCOME_MESSAGE);
+            
+            // Add startup buttons
+            wpChatbotAddStartupButtons();
+            
+            // Clear and reset input
+            const input = document.getElementById('chat-input');
+            if (input) {
+                input.value = '';
+                wpChatbotAutoResizeTextarea(input);
+                wpChatbotUpdateCharCount();
+            }
+
+            // Reset send button
+            const sendBtn = document.getElementById('send-btn');
+            if (sendBtn) {
+                sendBtn.disabled = false;
+                sendBtn.classList.remove('loading');
+            }
+
+            wpChatbotUpdateStatus('online', 'Online');
+        }
+
+        async function wpChatbotSendMessage(event, customMessage) {
+            if (event) event.preventDefault();
+            
+            const input = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            
+            if (wpChatbotIsTyping || (sendBtn && sendBtn.disabled)) return;
+            
+            let message = customMessage || (input ? input.value.trim() : '');
+            if (!message || message.length > WP_CHATBOT_CONFIG.MAX_MESSAGE_LENGTH) return;
+
+            // Sanitize input
+            message = wpChatbotSanitizeInput(message);
+
+            // Get uploaded files
+            const filesToSend = [...wpChatbotUploadedFiles];
+            
+            // Hide startup buttons
+            const startupBtns = document.querySelector("#wp-chatbot-widget .startup-buttons");
+            if (startupBtns) {
+                startupBtns.style.display = "none";
+            }
+
+            // Set loading state
+            wpChatbotIsTyping = true;
+            if (sendBtn) {
+                sendBtn.disabled = true;
+            }
+
+            // Add user message
+            wpChatbotMessages.push({
+                role: 'user',
+                message: message,
+                timestamp: Date.now(),
+                files: filesToSend
+            });
+            
+            // Add to memory
+            wpChatbotAddToMemory('user', message);
+
+            // Display user message (including files)
+            wpChatbotAddMessage('user', message, filesToSend);
+            
+            if (input) {
+                input.value = '';
+                wpChatbotAutoResizeTextarea(input);
+                wpChatbotUpdateCharCount();
+            }
+            
+            // Clear file uploads
+            wpChatbotRemoveFilePreview();
+            
+            wpChatbotAddTypingAnimation();
+
+            try {
+                // Call OpenRouter API with files
+                const response = await wpChatbotCallOpenRouterAPI(message, filesToSend);
+                
+                // Add AI response to memory
+                wpChatbotAddToMemory('bot', response);
+                
+                // Display response
+                await wpChatbotAddBotResponse(response);
+                
+                // Reset retry count on success
+                wpChatbotRetryCount = 0;
+                
+            } catch (error) {
+                console.error('Chatbot API Error:', error);
+                wpChatbotHandleError(error, message);
+            } finally {
+                // Reset loading state
+                wpChatbotIsTyping = false;
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                }
+                if (input) input.focus();
+            }
+        }
+
+        function wpChatbotHandleError(error, originalMessage = null) {
+            // Remove typing animation
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+
+            // Determine error type and message
+            let errorMessage = 'Sorry, something went wrong. Please try again.';
+            let showRetry = true;
+            
+            if (error.message.includes('API key')) {
+                errorMessage = '🔑 API configuration error. Please contact support.';
+                showRetry = false;
+            } else if (error.message.includes('rate limit')) {
+                errorMessage = '⏱️ Too many requests. Please wait a moment before trying again.';
+            } else if (error.message.includes('credits')) {
+                errorMessage = '💳 Service temporarily unavailable. Please try again later.';
+                showRetry = false;
+            } else if (error.message.includes('cancelled')) {
+                errorMessage = '🚫 Request was cancelled.';
+                showRetry = false;
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                errorMessage = '🌐 Network error. Please check your connection and try again.';
+            }
+
+            // Add error message
+            const chatMessages = document.getElementById('chat-messages');
+            const errorContainer = document.createElement('div');
+            errorContainer.classList.add('message-error');
+            
+            let retryButton = '';
+            if (showRetry && wpChatbotRetryCount < WP_CHATBOT_CONFIG.MAX_RETRIES) {
+                retryButton = `
+                    <button class="retry-btn" onclick="wpChatbotRetryLastMessage('${originalMessage ? originalMessage.replace(/'/g, "\\'") : ''}')">
+                        <i class="fa-solid fa-redo"></i> Retry (${wpChatbotRetryCount + 1}/${WP_CHATBOT_CONFIG.MAX_RETRIES})
+                    </button>
+                `;
+            }
+            
+            errorContainer.innerHTML = `
+                <i class="fa-solid fa-exclamation-triangle"></i>
+                <span>${errorMessage}</span>
+                ${retryButton}
+            `;
+            
+            chatMessages.appendChild(errorContainer);
+            wpChatbotScrollToBottom();
+        }
+
+        async function wpChatbotRetryLastMessage(originalMessage = null) {
+            // Remove error message
+            const errorMsg = document.querySelector('.wp-chatbot-widget .message-error');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+
+            wpChatbotRetryCount++;
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, WP_CHATBOT_CONFIG.RETRY_DELAY));
+            
+            // Get message to retry
+            let messageToRetry = originalMessage;
+            if (!messageToRetry) {
+                const lastUserMessage = wpChatbotConversationMemory
+                    .slice()
+                    .reverse()
+                    .find(msg => msg.role === 'user');
+                messageToRetry = lastUserMessage ? lastUserMessage.content : null;
+            }
+
+            if (messageToRetry) {
+                wpChatbotSendMessage(null, messageToRetry);
+            }
+        }
+
+        function wpChatbotUpdateStatus(status, message) {
+            const statusElement = document.getElementById('chat-status');
+            const statusDot = document.getElementById('status-dot');
+            
+            // 🎯 FIXED: Only allow status changes during initialization, then keep "Online"
+            if (wpChatbotIsInitialized && message !== 'Online') {
+                return; // Don't change status if already initialized
+            }
+            
+            if (statusElement) statusElement.textContent = message;
+            
+            if (statusDot) {
+                statusDot.className = 'chat-status-dot';
+                if (status === 'online') {
+                    statusDot.classList.add('online');
+                } else if (status === 'connecting') {
+                    statusDot.classList.add('connecting');
+                }
+            }
+        }
+
+        function wpChatbotAddMessage(sender, message, files = []) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add(`message-${sender}`);
+
+            const avatarIcon = sender === 'ai' 
+                ? WP_CHATBOT_CONFIG.BOT_AVATAR_ICON 
+                : WP_CHATBOT_CONFIG.USER_AVATAR_ICON;
+
+            const timestamp = WP_CHATBOT_CONFIG.SHOW_TIMESTAMPS 
+                ? `<span class="message-time">${new Date().toLocaleTimeString()}</span>` 
+                : '';
+
+            // Handle file display in user messages
+            let fileDisplay = '';
+            if (files && files.length > 0 && sender === 'user') {
+                fileDisplay = files.map(file => {
+                    if (file.type.startsWith('image/')) {
+                        return `<div class="file-preview"><i class="fa-solid fa-image"></i> ${file.name}</div>`;
+                    } else {
+                        return `<div class="file-preview"><i class="fa-solid fa-file"></i> ${file.name}</div>`;
+                    }
+                }).join('');
+            }
+
+            if (sender === 'ai') {
+                // Render markdown for AI messages
+                const renderedMessage = wpChatbotRenderMarkdown(message);
+                
+                messageContainer.innerHTML = `
+                    <div class="bot-avatar">
+                        <i class="${avatarIcon}"></i>
+                    </div>
+                    <div class="message-text">
+                        ${renderedMessage}
+                        ${timestamp}
+                        <button class="copy-btn" onclick="wpChatbotCopyText(event)" title="Copy message"
+                                aria-label="Copy message to clipboard">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                messageContainer.innerHTML = `
+                    <div class="message-text">${fileDisplay}${message}${timestamp}</div>
+                    <div class="user-avatar">
+                        <i class="${avatarIcon}"></i>
+                    </div>
+                `;
+            }
+
+            chatMessages.appendChild(messageContainer);
+            
+            // Manage message limit
+            wpChatbotManageMessageLimit();
+            wpChatbotScrollToBottom();
+        }
+
+        function wpChatbotManageMessageLimit() {
+            const chatMessages = document.getElementById('chat-messages');
+            const messages = chatMessages.querySelectorAll('.message-ai, .message-user');
+            
+            if (messages.length > WP_CHATBOT_CONFIG.MAX_MESSAGES) {
+                // Remove oldest messages (keeping welcome message and memory indicator)
+                const messagesToRemove = messages.length - WP_CHATBOT_CONFIG.MAX_MESSAGES;
+                for (let i = 1; i <= messagesToRemove; i++) { // Start from 1 to keep welcome message
+                    if (messages[i]) {
+                        messages[i].remove();
+                    }
+                }
+            }
+        }
+
+        function wpChatbotAddTypingAnimation() {
+            const chatMessages = document.getElementById('chat-messages');
+            const typingContainer = document.createElement('div');
+            typingContainer.classList.add('message-ai', 'typing-animation');
+            typingContainer.id = 'typing-indicator';
+            
+            typingContainer.innerHTML = `
+                <div class="bot-avatar">
+                    <i class="${WP_CHATBOT_CONFIG.BOT_AVATAR_ICON}"></i>
+                </div>
+                <div class="typing-dots">
+                    <svg height="16" width="40">
+                        <circle class="typing-dot" cx="10" cy="8" r="3" />
+                        <circle class="typing-dot" cx="20" cy="8" r="3" />
+                        <circle class="typing-dot" cx="30" cy="8" r="3" />
+                    </svg>
+                </div>
+            `;
+            
+            chatMessages.appendChild(typingContainer);
+            wpChatbotScrollToBottom();
+        }
+
+        async function wpChatbotAddBotResponse(message) {
+            // Remove typing animation
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+
+            // Add bot message with typing effect
+            const chatMessages = document.getElementById('chat-messages');
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message-ai');
+            
+            const timestamp = WP_CHATBOT_CONFIG.SHOW_TIMESTAMPS 
+                ? `<span class="message-time">${new Date().toLocaleTimeString()}</span>` 
+                : '';
+            
+            messageContainer.innerHTML = `
+                <div class="bot-avatar">
+                    <i class="${WP_CHATBOT_CONFIG.BOT_AVATAR_ICON}"></i>
+                </div>
+                <div class="message-text typing-effect">${timestamp}</div>
+            `;
+            
+            chatMessages.appendChild(messageContainer);
+
+            // Typing effect
+            const typingElement = messageContainer.querySelector('.typing-effect');
+            let index = 0;
+            const renderedMessage = wpChatbotRenderMarkdown(message);
+            
+            return new Promise((resolve) => {
+                const typeMessage = () => {
+                    if (index < message.length) {
+                        typingElement.textContent = (timestamp ? typingElement.querySelector('.message-time')?.outerHTML || '' : '') + message.substring(0, index + 1);
+                        index++;
+                        setTimeout(typeMessage, WP_CHATBOT_CONFIG.TYPING_SPEED);
+                    } else {
+                        // Add final rendered message with copy button
+                        typingElement.innerHTML = renderedMessage + timestamp + `
+                            <button class="copy-btn" onclick="wpChatbotCopyText(event)" title="Copy message"
+                                    aria-label="Copy message to clipboard">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        `;
+                        resolve();
+                    }
+                    wpChatbotScrollToBottom();
+                };
+                
+                typeMessage();
+            });
+
+            // Add to messages array
+            wpChatbotMessages.push({
+                role: 'assistant',
+                message: message,
+                timestamp: Date.now()
+            });
+        }
+
+        function wpChatbotAddStartupButtons() {
+            const chatMessages = document.getElementById('chat-messages');
+            const startupBtnsDiv = document.createElement('div');
+            startupBtnsDiv.classList.add('startup-buttons');
+
+            WP_CHATBOT_CONFIG.STARTUP_BUTTONS.forEach(btn => {
+                const buttonElement = document.createElement('button');
+                buttonElement.classList.add('startup-btn');
+                buttonElement.textContent = btn.text;
+                buttonElement.setAttribute('aria-label', `Send: ${btn.prompt}`);
+                buttonElement.onclick = (event) => {
+                    wpChatbotSendMessage(event, btn.prompt);
+                    wpChatbotHandleStartupBtnClick(event);
+                };
+                startupBtnsDiv.appendChild(buttonElement);
+            });
+
+            chatMessages.appendChild(startupBtnsDiv);
+            wpChatbotScrollToBottom();
+        }
+
+        function wpChatbotScrollToBottom() {
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        function wpChatbotCopyText(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const messageElement = event.target.closest('.message-text');
+            let textToCopy = messageElement.textContent.replace('📋', '').trim();
+            
+            // Remove the copy button text and timestamp
+            textToCopy = textToCopy.replace(/Copy message.*$/, '').trim();
+            if (WP_CHATBOT_CONFIG.SHOW_TIMESTAMPS) {
+                textToCopy = textToCopy.replace(/\d{1,2}:\d{2}:\d{2}\s?(AM|PM)?.*$/, '').trim();
+            }
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const button = event.target.closest('button');
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="fa-solid fa-check"></i>';
+                button.style.background = 'var(--chatbot-success)';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.style.background = '';
+                }, 2000);
+            }).catch(error => {
+                console.error('Copy failed:', error);
+            });
+        }
+
+        function wpChatbotHandleStartupBtnClick(event) {
+            const startupBtnContainer = event.target.parentNode;
+            startupBtnContainer.style.display = 'none';
+        }
+
+        // ==========================================
+        // 🚀 INITIALIZATION
+        // ==========================================
+        function wpChatbotInitialize() {
+            if (wpChatbotIsInitialized) return;
+            
+            const loadingScreen = document.getElementById('loading-screen');
+            const chatTitle = document.getElementById('chat-title');
+
+            // Update bot name in header
+            if (chatTitle) chatTitle.textContent = WP_CHATBOT_CONFIG.BOT_NAME;
+
+            // Show loading
+            if (loadingScreen) loadingScreen.style.display = 'flex';
+            wpChatbotUpdateStatus('connecting', 'Initializing...');
+
+            // Initialize chatbot
+            setTimeout(() => {
+                if (loadingScreen) loadingScreen.style.display = 'none';
+                
+                // 🎯 FIXED: Update status to online and mark as initialized
+                wpChatbotUpdateStatus('online', 'Online');
+                wpChatbotIsInitialized = true; // Mark as initialized BEFORE status update
+
+                // Clear any existing messages
+                const chatMessages = document.getElementById('chat-messages');
+                if (chatMessages) chatMessages.innerHTML = '';
+
+                // Add welcome message
+                wpChatbotAddMessage('ai', WP_CHATBOT_CONFIG.WELCOME_MESSAGE);
+                
+                // Add startup buttons
+                wpChatbotAddStartupButtons();
+                
+                // Initialize memory indicator
+                wpChatbotUpdateMemoryIndicator();
+                
+                console.log('🤖 AI Chatbot initialized successfully', {
+                    model: WP_CHATBOT_CONFIG.MODEL_NAME,
+                    memorySize: WP_CHATBOT_CONFIG.MEMORY_SIZE,
+                    sessionId: wpChatbotSessionId,
+                    markdownEnabled: WP_CHATBOT_CONFIG.ENABLE_MARKDOWN,
+                    fileUploadEnabled: true
+                });
+            }, WP_CHATBOT_CONFIG.INITIALIZATION_DELAY);
+        }
+
+        // ==========================================
+        // 🎯 EVENT LISTENERS
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chat-input');
+            const chatForm = document.getElementById('chat-form');
+            
+            // Enhanced input handling
+            if (chatInput) {
+                // Handle Enter key (with Shift+Enter for new lines)
+                chatInput.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                        event.preventDefault();
+                        wpChatbotSendMessage(event);
+                    }
+                });
+
+                // Auto-resize textarea
+                chatInput.addEventListener('input', (event) => {
+                    wpChatbotAutoResizeTextarea(event.target);
+                    wpChatbotUpdateCharCount();
+                });
+
+                // Character count update
+                chatInput.addEventListener('input', wpChatbotUpdateCharCount);
+            }
+
+            // Form submission handler
+            if (chatForm) {
+                chatForm.addEventListener('submit', wpChatbotSendMessage);
+            }
+
+            // Initialize character count
+            wpChatbotUpdateCharCount();
+
+            // Check if we're in WordPress admin
+            if (document.body.classList.contains('wp-admin')) {
+                const widget = document.getElementById('wp-chatbot-widget');
+                if (widget) {
+                    widget.style.display = 'none';
+                }
+            }
+
+            // Handle visibility change (pause animations when tab is not active)
+            document.addEventListener('visibilitychange', function() {
+                const lottiePlayer = document.querySelector('dotlottie-player');
+                if (lottiePlayer) {
+                    if (document.hidden) {
+                        lottiePlayer.pause();
+                    } else {
+                        lottiePlayer.play();
+                    }
+                }
+            });
+        });
+
+        // Handle window resize for mobile optimization
+        window.addEventListener('resize', function() {
+            if (wpChatbotIsOpen) {
+                wpChatbotScrollToBottom();
+            }
+        });
+
+        // Handle escape key to close chat
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && wpChatbotIsOpen) {
+                wpChatbotToggle();
+            }
+        });
+
+        // Prevent memory leaks on page unload
+        window.addEventListener('beforeunload', function() {
+            if (wpChatbotAbortController) {
+                wpChatbotAbortController.abort();
+            }
+            wpChatbotMessages = [];
+            wpChatbotConversationMemory = [];
+            wpChatbotUploadedFiles = [];
+        });
+
+        // Handle page visibility to manage resources
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && wpChatbotAbortController) {
+                // Optionally abort requests when page becomes hidden
+                // wpChatbotAbortController.abort();
+            }
+        });
+    </script>
+</body>
+</html>
