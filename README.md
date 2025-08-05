@@ -5,8 +5,8 @@ A modern, fully customizable AI chatbot widget for WordPress, built as a single 
 
 | Theme  | Preview |
 |--------|---------|
-| Green  | Green Chatbot UI(<img width="1920" height="1080" alt="Chatbt-green" src="https://github.com/user-attachments/assets/c5cd6278-2aaa-41ee-a54f-ecf6065d7cbf" />)
-| Blue   | Blue Chatbot UI(<img width="1920" height="1080" alt="Chatbot-blue" src="https://github.com/user-attachments/assets/077fb394-8696-4f22-bf26-5e1013be0bc0" />)
+| Green  | Green Chatbot UI <img width="1920" height="1080" alt="Chatbt-green" src="https://github.com/user-attachments/assets/c5cd6278-2aaa-41ee-a54f-ecf6065d7cbf" />
+| Blue   | Blue Chatbot UI <img width="1920" height="1080" alt="Chatbot-blue" src="https://github.com/user-attachments/assets/077fb394-8696-4f22-bf26-5e1013be0bc0" />
 
 
 ---
@@ -24,15 +24,8 @@ A modern, fully customizable AI chatbot widget for WordPress, built as a single 
 - 🧩 Easily embeddable with a single HTML snippet
 
 ---
- 📷 UI Previews
-
-| Theme  | Preview |
-|--------|---------|
-| Green  | ![Green Chatbot UI](./assets/chatbot-green-preview.png) |
-| Blue   | ![Blue Chatbot UI](./assets/chatbot-blue-preview.png) |
 
 
----
 
 ## 🚀 How to Use in WordPress
 
@@ -53,12 +46,17 @@ const WP_CHATBOT_CONFIG = {
   OPENROUTER_API_KEY: "YOUR_OPENROUTER_KEY_HERE", // 🔑 Replace this
   MODEL_NAME: "google/gemma-3-27b-it:free",        // ✅ Use any supported OpenRouter model
   SYSTEM_PROMPT: `Customize your assistant's tone, knowledge, and personality here.`,
+}
 ```
+
+---
 🧑‍💻 Contributing
 If you'd like to contribute new features, fix bugs, or submit improvements, feel free to open an issue or pull request.
 
+
+---
 📜 License
 This project is open-sourced under the MIT License.
 
   ...
-}
+
