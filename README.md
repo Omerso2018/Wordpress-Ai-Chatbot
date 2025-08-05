@@ -9,7 +9,7 @@ A modern, fully customizable AI chatbot widget for WordPress, built as a single 
 | Green  | Green Chatbot UI <img width="1920" height="1080" alt="Chatbt-green" src="https://github.com/user-attachments/assets/c5cd6278-2aaa-41ee-a54f-ecf6065d7cbf" />
 | Blue   | Blue Chatbot UI <img width="1920" height="1080" alt="Chatbot-blue" src="https://github.com/user-attachments/assets/077fb394-8696-4f22-bf26-5e1013be0bc0" />
 
-
+A fully customizable AI chatbot widget for WordPress, powered by OpenRouter LLMs. Easy to install using HTML snippets — includes blue and green UI themes.
 ---
 
 
